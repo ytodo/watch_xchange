@@ -29,11 +29,14 @@ def check_status(fetched_html, target_string):
     # もし文字列が存在したらrpi-xchangeをリスタート
     if target_string in fetched_html:
 
+        # Pi OS の場合
         if (os_id == "debian"):
             msg_mlt = "rpi-multi_forward をリスタートします。"
             msg_xch = "rpi-xchange をリスタートします。"
             cmd_mlt = 'sudo systemctl restart rpi-multi_forward.service'
             cmd_xch = 'sudo systemctl restart rpi-xchange.service'
+
+        # AlmaLinuxの場合
         else:
             msg_mlt = "multi_forward をリスタートします。"
             msg_xch = "xchange をリスタートします。"
@@ -60,12 +63,15 @@ def get_os_id():
                 if line.startswith('ID='):
                     os_id = line.strip().split('=')[1].strip('"')
                     break
+
     # OS種類が取得できない時
     except FileNotFoundError:
         os_id = "Unknown"
 
+    # OSの種類を返す
     return os_id
 
+# Main Routin
 if __name__ == "__main__":
 
     # OSを取得
@@ -73,21 +79,32 @@ if __name__ == "__main__":
 
     # OS特有のポートを代入（独自のポートを設定した時は変更する）
     if (os_id == "debian"):
-        port = '20202'                   # 監視するポート番号
+        port_x = '20201'                    # 監視するrpi-xchangeのポート
+        port_m = '20202'                    # 監視するrpi-multi_forwardのポート
     else:
-        port = '20202'                   # ポートはブログどおりに設定した場合Alma:8081
+        port_x = '8080'                     # 監視する xchange のポート
+        port_m = '8081'                     # 監視する multi_forwardのポート
 
     # WEB表示を監視したい文字列
     target_string = "Not Running"
     count = 0
 
     # 監視開始(シャットダウン・リブート又は[Ctrl] + [c]でのみ終了
-    print("ポート:", port, "を監視しています。")
+    print("ポート:", port_x, port_m, "を監視しています。")
 
     while True:
 
-        # 取得したhtmlを変数に代入
-        fetched_html = fetch_html_from_server(port)
+        # xchangeから取得したhtmlを変数に代入
+        fetched_html = fetch_html_from_server(port_x)
+
+        # 変数が空で無ければ
+        if fetched_html:
+
+            # 内容を検査
+            check_status(fetched_html, target_string)
+
+        # multi_forwardから取得したhtmlを変数に代入
+        fetched_html = fetch_html_from_server(port_m)
 
         # 変数が空で無ければ
         if fetched_html:
