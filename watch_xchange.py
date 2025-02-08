@@ -98,8 +98,8 @@ if __name__ == "__main__":
         logging.info("rpi-xchange(%s) rpi-multi_forward(%s) を監視します。", port_x, port_m)
 
     else:
-        port_x = '20201'                     # 監視する xchange のポート
-        port_m = '20202'                     # 監視する multi_forwardのポート
+        port_x = '8080'                     # 監視する xchange のポート
+        port_m = '8081'                     # 監視する multi_forwardのポート
 
         # 監視開始メッセージ
         logging.info("xchange(%s) multi_forward(%s) を監視します。", port_x, port_m)
