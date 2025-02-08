@@ -1,6 +1,7 @@
 ﻿import subprocess
 import requests
 import time
+import logging
 
 # WEBサーバーにアクセスしてhtmlコードを取得する
 def fetch_html_from_server(port):
@@ -11,23 +12,23 @@ def fetch_html_from_server(port):
     try:
         # requestsを送信して200(リクエスト成功)が返ったらその内容を取得
         response = requests.get(url)
-        if response.status_code == 200:
+        if (response.status_code == 200):
             html_content = response.text
             return html_content
 
         # もしエラーが返ったらその内容を表示（コンソールで起動している時のみ）
         else:
-            print(f"サーバーからのレスポンスコードがエラーです: {response.status_code}")
+            logging.info("サーバーからのレスポンスコードがエラーです: %d", response.status_code)
             return None
     except:
-        print("Get nothing..")
+        logging.info("Get nothing..")
         return None
 
 # 取得したhtmlコード内にターゲットの文字が有るかチェックする
 def check_status(fetched_html, target_string):
 
     # もし文字列が存在したらrpi-xchangeをリスタート
-    if target_string in fetched_html:
+    if (target_string in fetched_html):
 
         # Pi OS の場合
         if (os_id == "debian"):
@@ -43,11 +44,12 @@ def check_status(fetched_html, target_string):
             cmd_mlt = 'sudo systemctl restart multi_forward.service'
             cmd_xch = 'sudo systemctl restart xchange.service'
 
-        print(msg_mlt)
+        logging.info(msg_mlt)
         subprocess.run(cmd_mlt, shell=True)
+
         time.sleep(5)
 
-        print(msg_xch)
+        logging.info(msg_xch)
         subprocess.run(cmd_xch, shell=True)
 
 # OSの種類を取得
@@ -74,6 +76,16 @@ def get_os_id():
 # Main Routin
 if __name__ == "__main__":
 
+    # ログの設定
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        handlers=[
+            logging.FileHandler("/var/log/watch_xchange.log", encoding="utf-8"),
+            logging.StreamHandler()
+        ]
+    )
+
     # OSを取得
     os_id = get_os_id()
 
@@ -81,16 +93,21 @@ if __name__ == "__main__":
     if (os_id == "debian"):
         port_x = '20201'                    # 監視するrpi-xchangeのポート
         port_m = '20202'                    # 監視するrpi-multi_forwardのポート
+
+        # 監視開始メッセージ
+        logging.info("rpi-xchange(%s) rpi-multi_forward(%s) を監視します。", port_x, port_m)
+
     else:
-        port_x = '8080'                     # 監視する xchange のポート
-        port_m = '8081'                     # 監視する multi_forwardのポート
+        port_x = '20201'                     # 監視する xchange のポート
+        port_m = '20202'                     # 監視する multi_forwardのポート
+
+        # 監視開始メッセージ
+        logging.info("xchange(%s) multi_forward(%s) を監視します。", port_x, port_m)
+
 
     # WEB表示を監視したい文字列
     target_string = "Not Running"
     count = 0
-
-    # 監視開始(シャットダウン・リブート又は[Ctrl] + [c]でのみ終了
-    print("ポート:", port_x, port_m, "を監視しています。")
 
     while True:
 
