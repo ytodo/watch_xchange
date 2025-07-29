@@ -3,7 +3,7 @@ Description=xchange restart daemon for Status NG
 After = xchange.service
 
 [Service]
-ExecStart=python /usr/local/bin/watch_xchange.py
+ExecStart=python /opt/watch_xchange/scripts/watch_xchange.py
 Restart=always
 Type=simple
 
