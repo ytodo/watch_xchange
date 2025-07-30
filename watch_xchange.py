@@ -98,15 +98,16 @@ if __name__ == "__main__":
         logging.info("rpi-xchange(%s) rpi-multi_forward(%s) を監視します。", port_x, port_m)
 
     else:
-        port_x = '8080'                     # 監視する xchange のポート
-        port_m = '8081'                     # 監視する multi_forwardのポート
+        port_x = '20201'                     # 監視する xchange のポート
+        port_m = '20201'                     # 監視する multi_forwardのポート
 
         # 監視開始メッセージ
         logging.info("xchange(%s) multi_forward(%s) を監視します。", port_x, port_m)
 
 
     # WEB表示を監視したい文字列
-    target_string = "Not Running"
+	target_string_x = "NG"
+    target_string_m = "Not Running"
     count = 0
 
     while True:
@@ -118,7 +119,7 @@ if __name__ == "__main__":
         if fetched_html:
 
             # 内容を検査
-            check_status(fetched_html, target_string)
+            check_status(fetched_html, target_string_x)
 
         # multi_forwardから取得したhtmlを変数に代入
         fetched_html = fetch_html_from_server(port_m)
@@ -127,7 +128,7 @@ if __name__ == "__main__":
         if fetched_html:
 
             # 内容を検査
-            check_status(fetched_html, target_string)
+            check_status(fetched_html, target_string_m)
 
         # リクエスト送信の間隔を設定する。(10sec)
         time.sleep(10)
