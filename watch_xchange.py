@@ -106,7 +106,7 @@ if __name__ == "__main__":
 
 
     # WEB表示を監視したい文字列
-	target_string_x = "NG"
+    target_string_x = "NG"
     target_string_m = "Not Running"
     count = 0
 
